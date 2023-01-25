@@ -1,6 +1,6 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
+import 'package:rsa_cracker/Algorithm/decoding.dart';
+import 'package:rsa_cracker/Algorithm/encoding.dart';
 import 'package:rsa_cracker/Widgets/input_text_field.dart';
 import 'package:rsa_cracker/Widgets/simple_container.dart';
 
@@ -40,8 +40,8 @@ class _MyHomePageState extends State<MyHomePage> {
   var en;
   @override
   Widget build(BuildContext context) {
-    num p = 19;
-    num q = 17;
+    num p = 11;
+    num q = 13;
 
     return Scaffold(
       appBar: AppBar(
@@ -69,34 +69,11 @@ class _MyHomePageState extends State<MyHomePage> {
                 Ccolor: Colors.green,
                 followChild: GestureDetector(
                   onTap: () {
-                    int gcd(int a, int b) {
-                      int t;
-                      while (true) {
-                        t = a % b;
-                        if (t == 0) return b;
-                        a = b;
-                        b = t;
-                      }
-                    }
-
-                    num n = p * q; //calculate n
-                    num phi = (p - 1) * (q - 1);
-                    num e = 7;
-                    //for checking that 1 < e < phi(n) and gcd(e, phi(n)) = 1; i.e., e and phi(n) are coprime.
-                    while (e < phi) {
-                      if (gcd(e as int, phi as int) == 1) {
-                        break;
-                      } else {
-                        e++;
-                      }
-                    }
-
+                    num n = p * q;
                     num message = num.parse(dataController.text);
                     setState(() {
-                      en = pow(message, e);
-                      print(e);
+                      en = encoding(message, p, q);
                       encode = en % n;
-                      print(encode);
                     });
                   },
                   child: Center(
@@ -146,52 +123,11 @@ class _MyHomePageState extends State<MyHomePage> {
                   followChild: GestureDetector(
                     onTap: () {
                       setState(() {
-                        int gcd(int a, int b) {
-                          int t;
-                          while (true) {
-                            t = a % b;
-                            if (t == 0) return b;
-                            a = b;
-                            b = t;
-                          }
-                        }
-
+                        decode = null;
+                      });
+                      setState(() {
                         num n = num.parse(nDataController.text);
-                        print(n);
-                        num sqrt_n = sqrt(n).round();
-                        num i = sqrt_n as int;
-                        print(i);
-                        i = i + 1;
-                        while (i > 1) {
-                          if (n % i == 0) {
-                            p = i;
-                            q = n / i;
-                            q = q.toInt();
-                            break;
-                          }
-                          i++;
-                        }
-                        print(p);
-                        print(q);
-                        num phi = (p - 1) * (q - 1);
-                        num e = 7;
-                        //for checking that 1 < e < phi(n) and gcd(e, phi(n)) = 1; i.e., e and phi(n) are coprime.
-                        while (e < phi) {
-                          if (gcd(e as int, phi as int) == 1) {
-                            break;
-                          } else {
-                            e++;
-                          }
-                        }
-                        num d1 = 1 / e;
-                        num d = d1 % phi;
-                        print(d);
-                        decode = pow(en, d);
-                        decode = decode % n;
-                        decode = decode.round();
-                        print("this decoded");
-                        print(encode);
-                        print(decode);
+                        decode = decoding(n, en);
                       });
                     },
                     child: Center(
